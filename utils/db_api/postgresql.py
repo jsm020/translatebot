@@ -44,7 +44,9 @@ class Database:
         id SERIAL PRIMARY KEY,
         full_name VARCHAR(255) NOT NULL,
         username varchar(255) NULL,
-        telegram_id BIGINT NOT NULL UNIQUE 
+        telegram_id BIGINT NOT NULL UNIQUE ,
+        choose_lan_1 varchar(255) NULL,
+        choose_lan_2 varchar(255) NULL
         );
         """
         await self.execute(sql, execute=True)
@@ -57,9 +59,9 @@ class Database:
         ])
         return sql, tuple(parameters.values())
 
-    async def add_user(self, full_name, username, telegram_id):
-        sql = "INSERT INTO users (full_name, username, telegram_id) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, full_name, username, telegram_id, fetchrow=True)
+    async def add_user(self, full_name, username, telegram_id, choose_lan_1, choose_lan_2):
+        sql = "INSERT INTO users (full_name, username, telegram_id, choose_lan_1,choose_lan_2) VALUES($1, $2, $3, $4, $5) returning *"
+        return await self.execute(sql, full_name, username, telegram_id,choose_lan_1,choose_lan_2, fetchrow=True)
 
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
@@ -77,6 +79,15 @@ class Database:
     async def update_user_username(self, username, telegram_id):
         sql = "UPDATE Users SET username=$1 WHERE telegram_id=$2"
         return await self.execute(sql, username, telegram_id, execute=True)
+
+    async def update_user_choose_lan_1(self, choose_lan_1, telegram_id):
+        sql = "UPDATE Users SET choose_lan_1=$1 WHERE telegram_id=$2"
+        return await self.execute(sql, choose_lan_1, telegram_id, execute=True)
+    
+    
+    async def update_user_choose_lan_2(self, choose_lan_2, telegram_id):
+        sql = "UPDATE Users SET choose_lan_2=$1 WHERE telegram_id=$2"
+        return await self.execute(sql, choose_lan_2, telegram_id, execute=True)
 
     async def delete_users(self):
         await self.execute("DELETE FROM Users WHERE TRUE", execute=True)

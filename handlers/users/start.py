@@ -11,7 +11,9 @@ async def bot_start(message: types.Message):
     try:
         user = await db.add_user(telegram_id=message.from_user.id,
                                  full_name=message.from_user.full_name,
-                                 username=message.from_user.username)
+                                 username=message.from_user.username,
+                                 choose_lan_1=message.from_user.language_code,
+                                 choose_lan_2="Auto")
     except asyncpg.exceptions.UniqueViolationError:
         user = await db.select_user(telegram_id=message.from_user.id)
 
