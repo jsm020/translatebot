@@ -89,6 +89,11 @@ class Database:
         sql = "UPDATE Users SET choose_lan_2=$1 WHERE telegram_id=$2"
         return await self.execute(sql, choose_lan_2, telegram_id, execute=True)
 
+    async def update_choice(self, telegram_id):
+        sql = "UPDATE Users SET choose_lan_1 = choose_lan_2, choose_lan_2 = choose_lan_1 WHERE telegram_id = $1"
+        return await self.execute(sql, telegram_id, execute=True)
+
+
 
     async def select_user_choose_lan_1(self, telegram_id):
         sql = "SELECT choose_lan_1 FROM Users WHERE telegram_id=$1" 

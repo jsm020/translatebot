@@ -1,10 +1,13 @@
 import asyncpg
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
-
+from data.filters import language_callback_data, get_language_from_callback
 from loader import dp, db, bot
 from data.config import ADMINS
-from keyboards.default.mainkeyboard import menu
+from keyboards.default.mainkeyboard import create_menu_markup
+
+
+
 
 
 @dp.message_handler(CommandStart())
@@ -18,17 +21,9 @@ async def bot_start(message: types.Message):
     except asyncpg.exceptions.UniqueViolationError:
         user = await db.select_user(telegram_id=message.from_user.id)
 
-    data1 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
-    data2 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
+    x = await create_menu_markup(message.from_user.id)
 
-    print(data1, data2)
-
-    menu.keyboard[0][0].text = data1
-    menu.keyboard[0][2].text = data2
-
-
-
-    await message.answer("Xush kelibsiz!", reply_markup=menu)
+    await message.answer("Xush kelibsiz!", reply_markup=x)
 
     # ADMINGA xabar beramiz
     count = await db.count_users()
@@ -36,7 +31,35 @@ async def bot_start(message: types.Message):
     await bot.send_message(chat_id=ADMINS[0], text=msg)
 
 
-@dp.message_handler()
-async def update(message: types.Message):
-    update_data = await db.update_user_choose_lan_1(message=message.from_user.id,
-                                                    choose_lan_1=message.text)
+# @dp.message_handler(lambda message: message.text in language_callback_data.values())
+# async def update(message: types.Message):
+#     update_data = await db.update_user_choose_lan_1(message=message.from_user.id,
+#                                                     choose_lan_1=message.text)
+#     print(update_data)
+
+@dp.message_handler(text="🔁")
+async def bot_start(message: types.Message):
+    await db.update_choice(telegram_id=message.from_user.id)
+    x = await create_menu_markup(message.from_user.id)
+    await message.answer("Til muvafaqqiyatli uzgardi", reply_markup=x)
+
+
+# @dp.message_handler(text="🎙 Ovoz orqali")
+# async def bot_start(message: types.Message):
+#     menu.keyboard[1][0].text = "Text orqali"
+#     menu.keyboard[1][1].text = "🏞 Rasm orqali"
+#     await message.answer(f"Siz ovoz orqali tarjima qilishni tanladingiz.", reply_markup=menu)
+
+
+# @dp.message_handler(text="Text orqali")
+# async def bot_start(message: types.Message):
+#     menu.keyboard[1][0].text =  "🎙 Ovoz orqali"
+#     menu.keyboard[1][1].text = "🏞 Rasm orqali"
+#     await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=menu)
+
+
+# @dp.message_handler(text="🏞 Rasm orqali")
+# async def bot_start(message: types.Message):
+#     menu.keyboard[1][0].text =  "🎙 Ovoz orqali"
+#     menu.keyboard[1][1].text = "Text orqali"
+#     await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=menu)
