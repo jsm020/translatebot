@@ -1,7 +1,7 @@
 import asyncpg
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
-from data.filters import language_callback_data, get_language_from_callback
+from data.filters import language_callback_data, get_language_from_callback, topish_til_kodi
 from loader import dp, db, bot
 from data.config import ADMINS
 from keyboards.default.mainkeyboard import create_menu_markup
@@ -32,9 +32,12 @@ async def bot_start(message: types.Message):
     await bot.send_message(chat_id=ADMINS[0], text=msg)
 
 
-@dp.message_handler(lambda message: message.text in language_callback_data.keys())
-async def update(message: types.Message):
-    await message.answer("Qaysi tildan tarjima qilmoqchisiz? Tanlang: 🔻", reply_markup=language1)
+
+
+
+
+
+
 @dp.message_handler(text="🔁")
 async def bot_start(message: types.Message):
     data = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
@@ -64,3 +67,10 @@ async def bot_start(message: types.Message):
     x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
 
     await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
+
+
+@dp.message_handler(lambda message: message.text in language_callback_data.keys())
+async def update(message: types.Message):
+    # await message.answer("Qaysi tildan tarjima qilmoqchisiz? Tanlang: 🔻", reply_markup=language1)
+    text = message.text
+    print(topish_til_kodi(text))

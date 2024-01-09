@@ -27,3 +27,11 @@ language_callback_data = {
 def get_language_from_callback(callback):
     return next((language for language, cb_data in language_callback_data.items() if cb_data == callback), None)
 
+
+
+
+def topish_til_kodi(soz):
+    return language_callback_data.get(soz)
+
+
+
