@@ -21,7 +21,7 @@ async def bot_start(message: types.Message):
     except asyncpg.exceptions.UniqueViolationError:
         user = await db.select_user(telegram_id=message.from_user.id)
 
-    x = await create_menu_markup(message.from_user.id)
+    x = await create_menu_markup(message.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
 
     await message.answer("Xush kelibsiz!", reply_markup=x)
 
@@ -40,26 +40,25 @@ async def bot_start(message: types.Message):
 @dp.message_handler(text="🔁")
 async def bot_start(message: types.Message):
     await db.update_choice(telegram_id=message.from_user.id)
-    x = await create_menu_markup(message.from_user.id)
+    x = await create_menu_markup(message.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
     await message.answer("Til muvafaqqiyatli uzgardi", reply_markup=x)
 
 
-# @dp.message_handler(text="🎙 Ovoz orqali")
-# async def bot_start(message: types.Message):
-#     menu.keyboard[1][0].text = "Text orqali"
-#     menu.keyboard[1][1].text = "🏞 Rasm orqali"
-#     await message.answer(f"Siz ovoz orqali tarjima qilishni tanladingiz.", reply_markup=menu)
+@dp.message_handler(text="🎙 Ovoz orqali")
+async def bot_start(message: types.Message):
+    x = await create_menu_markup(message.from_user.id, button1_text='Text orqali', button2_text='🏞 Rasm orqali')
+    await message.answer(f"Siz ovoz orqali tarjima qilishni tanladingiz.", reply_markup=x)
 
 
-# @dp.message_handler(text="Text orqali")
-# async def bot_start(message: types.Message):
-#     menu.keyboard[1][0].text =  "🎙 Ovoz orqali"
-#     menu.keyboard[1][1].text = "🏞 Rasm orqali"
-#     await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=menu)
+@dp.message_handler(text="Text orqali")
+async def bot_start(message: types.Message):
+    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text='🏞 Rasm orqali')
+
+    await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=x)
 
 
-# @dp.message_handler(text="🏞 Rasm orqali")
-# async def bot_start(message: types.Message):
-#     menu.keyboard[1][0].text =  "🎙 Ovoz orqali"
-#     menu.keyboard[1][1].text = "Text orqali"
-#     await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=menu)
+@dp.message_handler(text="🏞 Rasm orqali")
+async def bot_start(message: types.Message):
+    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
+
+    await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
