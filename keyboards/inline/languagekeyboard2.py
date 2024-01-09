@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # 1-usul.
-language1 = InlineKeyboardMarkup(
+language2 = InlineKeyboardMarkup(
     inline_keyboard=[
     [
         InlineKeyboardButton(text="🔎 Avtomatik aniqlash", callback_data="auto"),
@@ -49,28 +49,3 @@ language1 = InlineKeyboardMarkup(
         InlineKeyboardButton(text="Xitoy(A`nanaviy) 🇨🇳", callback_data="zh-Hant"),
     ],
 ])
-# language_callback_data = {
-#     "🔎 Avtomatik aniqlash": "auto",
-#     "Rus 🇷🇺": "ru",
-#     "Ingliz 🇬🇧": "en",
-#     "Qozoq 🇰🇿": "kk",
-#     "O'zbek 🇺🇿": "uz",
-#     "Lotin 🇺🇿": "uz-Latn",
-#     "Frantsuz 🇫🇷": "fr",
-#     "Tojik 🇹🇯": "tg",
-#     "Turkman 🇹🇲": "tk",
-#     "Qirg'iz 🇰🇬": "ky",
-#     "Ispancha 🇪🇸": "es",
-#     "Belarus 🇧🇾": "be",
-#     "Ukrain 🇺🇦": "uk",
-#     "Arman 🇦🇲": "hy",
-#     "Nemis 🇩🇪": "de",
-#     "Italyan 🇮🇹": "it",
-#     "Fors 🇮🇷": "sv",
-#     "Turk 🇹🇷": "tr",
-#     "Koreys 🇰🇷": "ko",
-#     "Arabcha 🇸🇦": "ar",
-#     "Yapon 🇯🇵": "ja",
-#     "Xitoy(oddiy) 🇨🇳": "zh",
-#     "Xitoy(A`nanaviy) 🇨🇳": "zh-Hant"
-# } 
