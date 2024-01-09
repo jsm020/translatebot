@@ -44,7 +44,7 @@ language2 = InlineKeyboardMarkup(
         InlineKeyboardButton(text="Yapon 🇯🇵", callback_data="ja"),
     ],
     [
-        InlineKeyboardButton(text="Xitoy(oddiy) 🇨🇳", callback_data="zh"),
-        InlineKeyboardButton(text="Xitoy(A`nanaviy) 🇨🇳", callback_data="zh-Hant"),
+        InlineKeyboardButton(text="Xitoy(oddiy) 🇨🇳", callback_data="zh-cn"),
+        InlineKeyboardButton(text="Xitoy(A`nanaviy) 🇨🇳", callback_data="zh-tw"),
     ],
 ])

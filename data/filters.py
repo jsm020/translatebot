@@ -20,8 +20,8 @@ language_callback_data = {
     "Koreys 🇰🇷": "ko",
     "Arabcha 🇸🇦": "ar",
     "Yapon 🇯🇵": "ja",
-    "Xitoy(oddiy) 🇨🇳": "zh",
-    "Xitoy(A`nanaviy) 🇨🇳": "zh-Hant"
+    "Xitoy(oddiy) 🇨🇳": "zh-cn",
+    "Xitoy(A`nanaviy) 🇨🇳": "zh-tw"
 } 
 
 def get_language_from_callback(callback):
