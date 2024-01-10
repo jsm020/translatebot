@@ -20,7 +20,7 @@ language1 = InlineKeyboardMarkup(
     ],
     [
         InlineKeyboardButton(text="Tojik 🇹🇯", callback_data="tg"),
-        InlineKeyboardButton(text="Turkman 🇹🇲", callback_data="tk"),
+        # InlineKeyboardButton(text="Turkman 🇹🇲", callback_data="tk"),
     ],
     [
         InlineKeyboardButton(text="Qirg'iz 🇰🇬", callback_data="ky"),
@@ -36,7 +36,7 @@ language1 = InlineKeyboardMarkup(
     ],
     [
         InlineKeyboardButton(text="Italyan 🇮🇹", callback_data="it"),
-        InlineKeyboardButton(text="Fors 🇮🇷", callback_data="sv"),
+        InlineKeyboardButton(text="Fors 🇮🇷", callback_data="fa"),
     ],
     [
         InlineKeyboardButton(text="Turk 🇹🇷", callback_data="tr"),

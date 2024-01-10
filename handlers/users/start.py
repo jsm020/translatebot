@@ -12,22 +12,6 @@ from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 
 
-# Assuming `dp` is your Dispatcher instance
-
-@dp.message_handler(content_types=types.ContentType.TEXT)
-async def translate_text(message: types.Message):
-    translator = Translator()
-    lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
-    lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
-
-    translation = translator.translate(message.text, src=lang1, dest=lang2)
-    translate_text = translation.text
-
-    await message.answer(translate_text)
-
-
-
-
 ###########################33
 @dp.message_handler(CommandStart(), state="*")
 async def bot_start(message: types.Message):
@@ -51,9 +35,7 @@ async def bot_start(message: types.Message):
 
 
 
-
-
-
+# Assuming `dp` is your Dispatcher instance
 
 
 @dp.message_handler(text="🔁",state="*")
@@ -132,3 +114,14 @@ async def change_lan2(call:types.CallbackQuery, state: FSMContext):
 
 
 
+
+@dp.message_handler(lambda message: message.text not in language_callback_data.keys() if language_callback_data else True)
+async def translate_text(message: types.Message):
+    translator = Translator()
+    lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
+    lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
+
+    translation = translator.translate(message.text, src=lang1, dest=lang2)
+    translate_text = translation.text
+
+    await message.answer(translate_text)
