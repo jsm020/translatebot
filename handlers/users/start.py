@@ -12,29 +12,24 @@ from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 
 
-# @dp.message_handler()
-# async def translate_to_uzbek(message: types.Message):
-#     try:
-#         translator = Translator()
-#         text = message.text
-#         lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
-#         lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
+# Assuming `dp` is your Dispatcher instance
 
-#         print(f"Lang1: {lang1}, Lang2: {lang2}")  # Check retrieved languages
+@dp.message_handler(content_types=types.ContentType.TEXT)
+async def translate_text(message: types.Message):
+    translator = Translator()
+    lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
+    lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
 
-#         if lang1 is not None and lang2 is not None:
-#             translated = translator.translate(text, src=lang1, dest=lang2)
-#             print(translated)  # Check the translated text
-#         else:
-#             print("Language codes are None.")
+    translation = translator.translate(message.text, src=lang1, dest=lang2)
+    translate_text = translation.text
 
-#     except Exception as e:
-#         print(f"An error occurred: {e}")  # Log any exceptions
+    await message.answer(translate_text)
 
 
 
 
-@dp.message_handler(CommandStart())
+###########################33
+@dp.message_handler(CommandStart(), state="*")
 async def bot_start(message: types.Message):
     try:
         user = await db.add_user(telegram_id=message.from_user.id,

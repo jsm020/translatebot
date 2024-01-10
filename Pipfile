@@ -7,7 +7,7 @@ name = "pypi"
 aiogram = "~=2.14"
 environs = "~=8.0.0"
 asyncpg = "*"
-googletrans = "*"
+googletrans = "==3.1.0a0"
 
 [dev-packages]
 ipykernel = "*"
