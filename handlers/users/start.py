@@ -7,7 +7,7 @@ from data.config import ADMINS
 from keyboards.default.mainkeyboard import create_menu_markup
 from keyboards.inline.languageKeyboard import language1
 from keyboards.inline.languagekeyboard2 import language2
-from states.statedata import ChangeData, ChangeData2, OvozAniqlash
+from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash
 from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 import os
@@ -117,7 +117,7 @@ async def bot_start(message: types.Message):
     x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text='🏞 Rasm orqali')
 
     await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=x)
-
+    await OvozAniqlash.ovoz_aniqlash.set()
 
 @dp.message_handler(text="🏞 Rasm orqali", state="*")
 async def bot_start(message: types.Message):
@@ -172,8 +172,8 @@ async def change_lan2(call:types.CallbackQuery, state: FSMContext):
 
 
 
-@dp.message_handler(lambda message: message.text not in language_callback_data.keys() if language_callback_data else True)
-async def translate_text(message: types.Message):
+@dp.message_handler(lambda message: message.text not in language_callback_data.keys() if language_callback_data else True, state=["*",TextAniqlash.text_aniqlash])
+async def translate_text(message: types.Message, state:FSMContext):
     translator = Translator()
     lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
     lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
@@ -182,3 +182,4 @@ async def translate_text(message: types.Message):
     translate_text = translation.text
 
     await message.answer(translate_text)
+    

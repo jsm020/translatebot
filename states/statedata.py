@@ -11,3 +11,8 @@ class ChangeData2(StatesGroup):
 
 class OvozAniqlash(StatesGroup):
     ovoz_aniqlash= State()
+
+
+
+class TextAniqlash(StatesGroup):
+    text_aniqlash= State()
