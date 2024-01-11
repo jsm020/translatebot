@@ -4,7 +4,6 @@ language_callback_data = {
     "Ingliz 🇬🇧": "en",
     "Qozoq 🇰🇿": "kk",
     "O'zbek 🇺🇿": "uz",
-    "Lotin 🇺🇿": "uz-Latn",
     "Frantsuz 🇫🇷": "fr",
     "Tojik 🇹🇯": "tg",
     # "Turkman 🇹🇲": "tk",

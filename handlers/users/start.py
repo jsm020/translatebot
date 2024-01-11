@@ -8,7 +8,7 @@ from data.config import ADMINS
 from keyboards.default.mainkeyboard import create_menu_markup
 from keyboards.inline.languageKeyboard import language1
 from keyboards.inline.languagekeyboard2 import language2
-from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash, RasmAniqlash
+from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash, RasmAniqlash, kiril_latin
 from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 import os
@@ -18,6 +18,7 @@ import speech_recognition as sr
 from pydub import AudioSegment
 from loader import dp, bot, db
 import speech_recognition as sr
+from data.transliterate import to_cyrillic, to_latin
 
 
 
@@ -25,7 +26,7 @@ import speech_recognition as sr
 
 
 
-
+    
 
 
 
@@ -51,6 +52,8 @@ async def bot_start(message: types.Message):
     count = await db.count_users()
     msg = f"{user[1]} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
     await bot.send_message(chat_id=ADMINS[0], text=msg)
+    await TextAniqlash.text_aniqlash.set()
+
 
 
 
@@ -73,12 +76,30 @@ async def bot_start(message: types.Message):
     x = await create_menu_markup(message.from_user.id, button1_text='Text orqali', button2_text='🏞 Rasm orqali')
     await message.answer(f"Siz ovoz orqali tarjima qilishni tanladingiz.", reply_markup=x)
     await OvozAniqlash.ovoz_aniqlash.set()
+    
 
 
 
 
+@dp.message_handler(text="Text orqali", state="*")
+async def bot_start(message: types.Message):
+    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text='🏞 Rasm orqali')
+
+    await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=x)
+    await TextAniqlash.text_aniqlash.set()
+
+@dp.message_handler(text="🏞 Rasm orqali", state="*")
+async def bot_start(message: types.Message):
+    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
+
+    await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
+    await RasmAniqlash.rasm_aniqlash.set()
 
 
+@dp.message_handler(text="Kiril_Lotin", state="*")
+async def kiril_latin_tarjim(message:types.Message):
+    await message.answer("Matn yuboring")
+    await kiril_latin.kirllatin.set()
 
 @dp.message_handler(content_types=types.ContentType.VOICE, state=OvozAniqlash.ovoz_aniqlash)
 async def handle_voice_message(message: types.Message, state: FSMContext):
@@ -114,19 +135,6 @@ async def handle_voice_message(message: types.Message, state: FSMContext):
 
 
 
-@dp.message_handler(text="Text orqali", state="*")
-async def bot_start(message: types.Message):
-    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text='🏞 Rasm orqali')
-
-    await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=x)
-    await OvozAniqlash.ovoz_aniqlash.set()
-
-@dp.message_handler(text="🏞 Rasm orqali", state="*")
-async def bot_start(message: types.Message):
-    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
-
-    await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
-    await RasmAniqlash.rasm_aniqlash.set()
 
 
 
@@ -178,15 +186,26 @@ async def update(message: types.Message):
     
 
 
+@dp.callback_query_handler(text="atmen", state=[ChangeData.lang1,ChangeData2.lang2])
+async def change(call:types.CallbackQuery, state=FSMContext):
+    await call.message.delete()
+    await state.finish()
+
 @dp.callback_query_handler(lambda call: call.data in language_callback_data.values(), state=ChangeData.lang1)
 async def change_lan(call:types.CallbackQuery, state: FSMContext):
     text = call.data
-    await db.update_user_choose_lan_1(telegram_id=call.from_user.id, choose_lan_1=text)
-    x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
-    await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
-    await call.message.delete()
-    await call.answer(cache_time=10)
-    await state.finish()
+    lang1 = await db.select_user_choose_lan_1(telegram_id=call.from_user.id)
+    lang2 = await db.select_user_choose_lan_2(telegram_id=call.from_user.id)
+
+    if call.data == lang1 or call.data == lang2:
+        await call.answer("Siz bu tilni tanlagansiz")
+    else:
+        await db.update_user_choose_lan_1(telegram_id=call.from_user.id, choose_lan_1=text)
+        x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
+        await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
+        await call.message.delete()
+        await call.answer(cache_time=10)
+        await state.finish()
 
 
 
@@ -194,14 +213,30 @@ async def change_lan(call:types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(lambda call: call.data in language_callback_data.values(), state=ChangeData2.lang2)
 async def change_lan2(call:types.CallbackQuery, state: FSMContext):
     text = call.data
-    await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
-    x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
-    await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
-    await call.message.delete()
-    await call.answer(cache_time=10)
+    lang1 = await db.select_user_choose_lan_1(telegram_id=call.from_user.id)
+    lang2 = await db.select_user_choose_lan_2(telegram_id=call.from_user.id)
+
+    if call.data == lang2 or call.data ==lang1:
+        await call.answer("Siz bu tilni tanlagansiz")
+        
+    else:
+        await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
+        x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
+
+        await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
+        await call.message.delete()
+        await call.answer(cache_time=10)
+        await state.finish()
+
+
+@dp.message_handler(content_types=types.ContentType.TEXT,state=kiril_latin.kirllatin)
+async def kirillatintarjim(message:types.Message, state:FSMContext):
+    matn = message.text
+    if matn.isascii():
+        await message.answer(to_cyrillic(matn))
+    else:
+        await message.answer(to_latin(matn))
     await state.finish()
-
-
 
 
 
@@ -216,3 +251,4 @@ async def translate_text(message: types.Message, state:FSMContext):
 
     await message.answer(translate_text)
     
+

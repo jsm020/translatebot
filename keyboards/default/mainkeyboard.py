@@ -25,6 +25,7 @@ async def create_menu_markup(telegram_id, button1_text='🎙 Ovoz orqali', butto
             ],
             [
                 KeyboardButton(text=button1_text),  # You can now pass custom text for this button
+                KeyboardButton(text='Kiril_Lotin'),
                 KeyboardButton(text=button2_text),  # You can now pass custom text for this button
             ]
         ],

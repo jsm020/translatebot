@@ -12,12 +12,8 @@ language2 = InlineKeyboardMarkup(
         InlineKeyboardButton(text="O'zbek 🇺🇿", callback_data="uz"),
     ],
     [
-        InlineKeyboardButton(text="Lotin 🇺🇿", callback_data="uz-Latn"),
-        InlineKeyboardButton(text="Frantsuz 🇫🇷", callback_data="fr"),
-    ],
-    [
         InlineKeyboardButton(text="Tojik 🇹🇯", callback_data="tg"),
-        # InlineKeyboardButton(text="Turkman 🇹🇲", callback_data="tk"),
+        InlineKeyboardButton(text="Frantsuz 🇫🇷", callback_data="fr"),
     ],
     [
         InlineKeyboardButton(text="Qirg'iz 🇰🇬", callback_data="ky"),
@@ -47,4 +43,7 @@ language2 = InlineKeyboardMarkup(
         InlineKeyboardButton(text="Xitoy(oddiy) 🇨🇳", callback_data="zh-cn"),
         InlineKeyboardButton(text="Xitoy(A`nanaviy) 🇨🇳", callback_data="zh-tw"),
     ],
+    [
+        InlineKeyboardButton(text="Bekor qilish 🚫", callback_data="atmen")
+    ]
 ])

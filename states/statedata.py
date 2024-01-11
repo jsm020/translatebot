@@ -20,3 +20,7 @@ class TextAniqlash(StatesGroup):
 
 class RasmAniqlash(StatesGroup):
     rasm_aniqlash= State()
+
+
+class kiril_latin(StatesGroup):
+    kirllatin= State()
