@@ -16,3 +16,7 @@ class OvozAniqlash(StatesGroup):
 
 class TextAniqlash(StatesGroup):
     text_aniqlash= State()
+
+
+class RasmAniqlash(StatesGroup):
+    rasm_aniqlash= State()

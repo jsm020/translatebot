@@ -1,42 +1,39 @@
-# import os
+# import io
+# import aiohttp
+# import easyocr
+# from aiogram import Bot, Dispatcher, types
+# from aiogram.dispatcher import FSMContext
+# from aiogram.dispatcher.filters import Command
+# from aiogram.types import ContentTypes
+# from aiogram.types import InputFile
+# from aiogram.dispatcher.filters.state import State, StatesGroup
 # from googletrans import Translator
-# import speech_recognition as sr
-# from pydub import AudioSegment
+
+# from data import config
 # from loader import dp, bot, db
-# import speech_recognition as sr
+# reader = easyocr.Reader(['en'],gpu=False)
+
+# @dp.message_handler(content_types=ContentTypes.PHOTO)
+# async def start_ocr(message: types.Message):
+#     await message.reply("Processing the image...")
+
+#     # Get the photo with the highest resolution
+#     file_id = message.photo[-1].file_id
+#     photo_info = await bot.get_file(file_id)
+#     photo_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{photo_info.file_path}"
+#     print(photo_url)
+#     text_result = reader.readtext(photo_url)
+#     if text_result:
+#         result_text = "\n".join([result[1] for result in text_result])
 
 
-# @dp.message_handler(content_types=types.ContentType.VOICE)
-# async def handle_voice_message(message: types.Message):
-#     voice_file = await message.voice.get_file()
-#     file_extension = voice_file.file_path.split('.')[-1]
-#     file_name = f"voice/voice_{message.message_id}.{file_extension}"
-#     await bot.download_file(voice_file.file_path, file_name)
-#     converted_file_name = "voice/converted.wav"
-#     os.system(f"ffmpeg -i {file_name} {converted_file_name}")
-#     audio = AudioSegment.from_file(converted_file_name, format="wav")
-#     recognizer = sr.Recognizer()
-#     with sr.AudioFile(converted_file_name) as source:
-#         audio = recognizer.record(source)
-#     try:
+#         translator = Translator()
 #         lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
 #         lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
-#         transcribed_text = recognizer.recognize_google(audio, language=lang1)
-#         translator = Translator()
 
-#         translation = translator.translate(transcribed_text, src=lang1, dest=lang2)
+#         translation = translator.translate(result_text, src=lang1, dest=lang2)
 #         translate_text = translation.text
 
 #         await message.answer(translate_text)
-
-#     except sr.UnknownValueError:
-#         await message.reply("Ovoz topilmadi.")
-#     except sr.RequestError as e:
-#         await message.reply(f"Произошла ошибка при обработке голосового сообщения: {e}")
-
-#     # Удаляем звуковые файлы
-#     os.remove(file_name)
-#     os.remove(converted_file_name)
-
-
-
+#     else:
+#         await message.reply("Rasmdan text topilmadi")

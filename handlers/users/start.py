@@ -1,16 +1,18 @@
 import asyncpg
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
+from data import config
 from data.filters import language_callback_data, get_language_from_callback, topish_til_kodi
 from loader import dp, db, bot
 from data.config import ADMINS
 from keyboards.default.mainkeyboard import create_menu_markup
 from keyboards.inline.languageKeyboard import language1
 from keyboards.inline.languagekeyboard2 import language2
-from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash
+from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash, RasmAniqlash
 from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 import os
+import easyocr
 from googletrans import Translator
 import speech_recognition as sr
 from pydub import AudioSegment
@@ -124,6 +126,37 @@ async def bot_start(message: types.Message):
     x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
 
     await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
+    await RasmAniqlash.rasm_aniqlash.set()
+
+
+
+reader = easyocr.Reader(['en'],gpu=False)
+
+@dp.message_handler(content_types=types.ContentTypes.PHOTO, state=RasmAniqlash.rasm_aniqlash)
+async def start_ocr(message: types.Message):
+    await message.reply("Text aniqlanmoqda...")
+    file_id = message.photo[-1].file_id
+    photo_info = await bot.get_file(file_id)
+    photo_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{photo_info.file_path}"
+    print(photo_url)
+    text_result = reader.readtext(photo_url)
+    if text_result:
+        result_text = "\n".join([result[1] for result in text_result])
+
+
+        translator = Translator()
+        lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
+        lang2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
+
+        translation = translator.translate(result_text, src=lang1, dest=lang2)
+        translate_text = translation.text
+
+        await message.answer(translate_text)
+    else:
+        await message.reply("Rasmdan text topilmadi")
+
+
+
 
 
 @dp.message_handler(lambda message: message.text in language_callback_data.keys() ,state="*")
