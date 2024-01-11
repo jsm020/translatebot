@@ -8,6 +8,8 @@ aiogram = "~=2.14"
 environs = "~=8.0.0"
 asyncpg = "*"
 googletrans = "==3.1.0a0"
+pydub = "*"
+speechrecognition = "*"
 
 [dev-packages]
 ipykernel = "*"

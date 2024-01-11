@@ -6,3 +6,8 @@ class ChangeData(StatesGroup):
 
 class ChangeData2(StatesGroup):
     lang2 = State()
+
+
+
+class OvozAniqlash(StatesGroup):
+    ovoz_aniqlash= State()
