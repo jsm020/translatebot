@@ -1,6 +1,7 @@
 import asyncpg
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
+import urllib3
 from data import config
 from data.filters import language_callback_data, get_language_from_callback, topish_til_kodi
 from loader import dp, db, bot
@@ -12,7 +13,10 @@ from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash
 from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 import os
-import easyocr
+import pytesseract
+import urllib.request
+
+from PIL import Image
 from googletrans import Translator
 import speech_recognition as sr
 from pydub import AudioSegment
@@ -138,7 +142,10 @@ async def handle_voice_message(message: types.Message, state: FSMContext):
 
 
 
-reader = easyocr.Reader(['en'],gpu=False)
+
+
+
+# ...
 
 @dp.message_handler(content_types=types.ContentTypes.PHOTO, state=RasmAniqlash.rasm_aniqlash)
 async def start_ocr(message: types.Message):
@@ -146,11 +153,16 @@ async def start_ocr(message: types.Message):
     file_id = message.photo[-1].file_id
     photo_info = await bot.get_file(file_id)
     photo_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{photo_info.file_path}"
-    print(photo_url)
-    text_result = reader.readtext(photo_url)
-    if text_result:
-        result_text = "\n".join([result[1] for result in text_result])
 
+    # Download the image
+    image_path = f"photo/photo_{message.message_id}"
+    urllib.request.urlretrieve(photo_url, image_path)
+
+    # Use Tesseract OCR to extract text
+    text_result = pytesseract.image_to_string(Image.open(image_path))
+
+    if text_result:
+        result_text = "\n".join(text_result.splitlines())
 
         translator = Translator()
         lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
@@ -160,8 +172,10 @@ async def start_ocr(message: types.Message):
         translate_text = translation.text
 
         await message.answer(translate_text)
+        os.remove(image_path)
     else:
         await message.reply("Rasmdan text topilmadi")
+        os.remove(image_path)
 
 
 
@@ -202,7 +216,7 @@ async def change_lan(call:types.CallbackQuery, state: FSMContext):
     else:
         await db.update_user_choose_lan_1(telegram_id=call.from_user.id, choose_lan_1=text)
         x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
-        await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
+        await call.message.answer(f"✅ Til muvaffaqiyatli o'zgartirildi.\n\n{get_language_from_callback(lang1)}dan{get_language_from_callback(text)}ga uzgardi",reply_markup=x )
         await call.message.delete()
         await call.answer(cache_time=10)
         await state.finish()
@@ -220,7 +234,7 @@ async def change_lan2(call:types.CallbackQuery, state: FSMContext):
         await call.answer("Siz bu tilni tanlagansiz")
         
     else:
-        await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
+        language = await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
         x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
 
         await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
@@ -251,4 +265,7 @@ async def translate_text(message: types.Message, state:FSMContext):
 
     await message.answer(translate_text)
     
+
+
+
 
