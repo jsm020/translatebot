@@ -6,10 +6,10 @@ from data import config
 from data.filters import language_callback_data, get_language_from_callback, topish_til_kodi
 from loader import dp, db, bot
 from data.config import ADMINS
-from keyboards.default.mainkeyboard import create_menu_markup
+from keyboards.default.mainkeyboard import create_menu_markup,atmenkeyboard
 from keyboards.inline.languageKeyboard import language1
 from keyboards.inline.languagekeyboard2 import language2
-from states.statedata import ChangeData, ChangeData2, OvozAniqlash, TextAniqlash, RasmAniqlash, kiril_latin
+from states.statedata import ChangeData, ChangeData2,kiril_latin,Aniqlash
 from aiogram.dispatcher import FSMContext
 from googletrans import Translator
 import os
@@ -26,17 +26,6 @@ from data.transliterate import to_cyrillic, to_latin
 
 
 
-
-
-
-
-    
-
-
-
-
-
-###########################33
 @dp.message_handler(CommandStart(), state="*")
 async def bot_start(message: types.Message):
     try:
@@ -48,7 +37,7 @@ async def bot_start(message: types.Message):
     except asyncpg.exceptions.UniqueViolationError:
         user = await db.select_user(telegram_id=message.from_user.id)
 
-    x = await create_menu_markup(message.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
+    x = await create_menu_markup(message.from_user.id)
 
     await message.answer("Xush kelibsiz!", reply_markup=x)
 
@@ -56,57 +45,30 @@ async def bot_start(message: types.Message):
     count = await db.count_users()
     msg = f"{user[1]} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
     await bot.send_message(chat_id=ADMINS[0], text=msg)
-    await TextAniqlash.text_aniqlash.set()
+    await Aniqlash.aniqlash.set()
 
 
-
-
-# Assuming `dp` is your Dispatcher instance
-
-
-@dp.message_handler(text="🔁",state="*")
+@dp.message_handler(text="🔁",state=Aniqlash.aniqlash)
 async def bot_start(message: types.Message):
     data = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
+    data2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
     if data == "Auto":
         await message.answer("🔎 Avtomatik aniqlash da tilni alishtrib bulmaydi")
     else:
         await db.update_choice(telegram_id=message.from_user.id)
-        x = await create_menu_markup(message.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
-        await message.answer("Til muvafaqqiyatli uzgardi", reply_markup=x)
+        x = await create_menu_markup(message.from_user.id)
+        await message.answer(f"✅ Til muvaffaqiyatli o'zgartirildi.\n\n{get_language_from_callback(data)}→{get_language_from_callback(data2)}",reply_markup=x )
 
 
-@dp.message_handler(text="🎙 Ovoz orqali", state="*")
-async def bot_start(message: types.Message):
-    x = await create_menu_markup(message.from_user.id, button1_text='Text orqali', button2_text='🏞 Rasm orqali')
-    await message.answer(f"Siz ovoz orqali tarjima qilishni tanladingiz.", reply_markup=x)
-    await OvozAniqlash.ovoz_aniqlash.set()
-    
-
-
-
-
-@dp.message_handler(text="Text orqali", state="*")
-async def bot_start(message: types.Message):
-    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text='🏞 Rasm orqali')
-
-    await message.answer(f"Siz text orqali tarjima qilishni tanladingiz ", reply_markup=x)
-    await TextAniqlash.text_aniqlash.set()
-
-@dp.message_handler(text="🏞 Rasm orqali", state="*")
-async def bot_start(message: types.Message):
-    x = await create_menu_markup(message.from_user.id, button1_text="🎙 Ovoz orqali", button2_text="Text orqali")
-
-    await message.answer(f"Siz rasm orqali tarjima qilishni tanladingiz ", reply_markup=x)
-    await RasmAniqlash.rasm_aniqlash.set()
-
-
-@dp.message_handler(text="Kiril_Lotin", state="*")
+@dp.message_handler(text="Kiril_Lotin", state=Aniqlash.aniqlash)
 async def kiril_latin_tarjim(message:types.Message):
-    await message.answer("Matn yuboring")
+    await message.answer("Matn yuboring", reply_markup=atmenkeyboard)
     await kiril_latin.kirllatin.set()
 
-@dp.message_handler(content_types=types.ContentType.VOICE, state=OvozAniqlash.ovoz_aniqlash)
+@dp.message_handler(content_types=types.ContentType.VOICE, state="*")
 async def handle_voice_message(message: types.Message, state: FSMContext):
+    await bot.send_chat_action(chat_id=message.chat.id, action=types.ChatActions.TYPING)
+
     voice_file = await message.voice.get_file()
     file_extension = voice_file.file_path.split('.')[-1]
     file_name = f"voice/voice_{message.message_id}.{file_extension}"
@@ -140,25 +102,16 @@ async def handle_voice_message(message: types.Message, state: FSMContext):
 
 
 
-
-
-
-
-
-# ...
-
-@dp.message_handler(content_types=types.ContentTypes.PHOTO, state=RasmAniqlash.rasm_aniqlash)
+@dp.message_handler(content_types=types.ContentTypes.PHOTO, state=Aniqlash.aniqlash)
 async def start_ocr(message: types.Message):
     await message.reply("Text aniqlanmoqda...")
     file_id = message.photo[-1].file_id
     photo_info = await bot.get_file(file_id)
     photo_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{photo_info.file_path}"
 
-    # Download the image
     image_path = f"photo/photo_{message.message_id}"
     urllib.request.urlretrieve(photo_url, image_path)
 
-    # Use Tesseract OCR to extract text
     text_result = pytesseract.image_to_string(Image.open(image_path))
 
     if text_result:
@@ -170,6 +123,7 @@ async def start_ocr(message: types.Message):
 
         translation = translator.translate(result_text, src=lang1, dest=lang2)
         translate_text = translation.text
+        await bot.send_chat_action(chat_id=message.chat.id, action=types.ChatActions.TYPING)
 
         await message.answer(translate_text)
         os.remove(image_path)
@@ -181,16 +135,12 @@ async def start_ocr(message: types.Message):
 
 
 
-@dp.message_handler(lambda message: message.text in language_callback_data.keys() ,state="*")
+@dp.message_handler(lambda message: message.text in language_callback_data.keys() ,state=Aniqlash.aniqlash)
 async def update(message: types.Message):
-    # await message.answer("Qaysi tildan tarjima qilmoqchisiz? Tanlang: 🔻", reply_markup=language1)
     text = message.text
     text = topish_til_kodi(text)    
-    # print(text)
     data = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
-    # print(data)
     data2 = await db.select_user_choose_lan_2(telegram_id=message.from_user.id)
-    # print(data2)
     if text == data:
         await ChangeData.lang1.set()
         await message.answer("Qaysi tildan tarjima qilmoqchisiz? Tanlang: 🔻", reply_markup=language1)
@@ -215,8 +165,8 @@ async def change_lan(call:types.CallbackQuery, state: FSMContext):
         await call.answer("Siz bu tilni tanlagansiz")
     else:
         await db.update_user_choose_lan_1(telegram_id=call.from_user.id, choose_lan_1=text)
-        x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
-        await call.message.answer(f"✅ Til muvaffaqiyatli o'zgartirildi.\n\n{get_language_from_callback(lang1)}dan{get_language_from_callback(text)}ga uzgardi",reply_markup=x )
+        x = await create_menu_markup(call.from_user.id)
+        await call.message.answer(f"✅ Til muvaffaqiyatli o'zgartirildi.\n\n{get_language_from_callback(lang1)}→{get_language_from_callback(text)}",reply_markup=x )
         await call.message.delete()
         await call.answer(cache_time=10)
         await state.finish()
@@ -234,27 +184,36 @@ async def change_lan2(call:types.CallbackQuery, state: FSMContext):
         await call.answer("Siz bu tilni tanlagansiz")
         
     else:
-        language = await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
-        x = await create_menu_markup(call.from_user.id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali')
+        await db.update_user_choose_lan_2(telegram_id=call.from_user.id, choose_lan_2=text)
+        x = await create_menu_markup(call.from_user.id)
 
-        await call.message.answer("Til muvaqqiyatli uzgardi",reply_markup=x )
+        await call.message.answer(f"✅ Til muvaffaqiyatli o'zgartirildi.\n\n{get_language_from_callback(lang2)}→{get_language_from_callback(text)}",reply_markup=x )
         await call.message.delete()
         await call.answer(cache_time=10)
         await state.finish()
 
+@dp.message_handler(text="Bekor qilish",state="*")
+async def kirillatintarjima(message:types.Message, state:FSMContext):
+    x = await create_menu_markup(message.from_user.id)
+    await state.finish()
+    await message.answer("Tarjima qilishingiz mumkin", reply_markup=x)
+
+    await Aniqlash.aniqlash.set()
 
 @dp.message_handler(content_types=types.ContentType.TEXT,state=kiril_latin.kirllatin)
 async def kirillatintarjim(message:types.Message, state:FSMContext):
     matn = message.text
     if matn.isascii():
+        await bot.send_chat_action(chat_id=message.chat.id, action=types.ChatActions.TYPING)
         await message.answer(to_cyrillic(matn))
     else:
+        await bot.send_chat_action(chat_id=message.chat.id, action=types.ChatActions.TYPING)
         await message.answer(to_latin(matn))
-    await state.finish()
 
 
 
-@dp.message_handler(lambda message: message.text not in language_callback_data.keys() if language_callback_data else True, state=["*",TextAniqlash.text_aniqlash])
+
+@dp.message_handler(lambda message: message.text not in language_callback_data.keys() if language_callback_data else True, state=Aniqlash.aniqlash)
 async def translate_text(message: types.Message, state:FSMContext):
     translator = Translator()
     lang1 = await db.select_user_choose_lan_1(telegram_id=message.from_user.id)
@@ -262,9 +221,10 @@ async def translate_text(message: types.Message, state:FSMContext):
 
     translation = translator.translate(message.text, src=lang1, dest=lang2)
     translate_text = translation.text
+    await bot.send_chat_action(chat_id=message.chat.id, action=types.ChatActions.TYPING)
 
     await message.answer(translate_text)
-    
+
 
 
 

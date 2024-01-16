@@ -9,17 +9,9 @@ class ChangeData2(StatesGroup):
 
 
 
-class OvozAniqlash(StatesGroup):
-    ovoz_aniqlash= State()
+class Aniqlash(StatesGroup):
+    aniqlash= State()
 
-
-
-class TextAniqlash(StatesGroup):
-    text_aniqlash= State()
-
-
-class RasmAniqlash(StatesGroup):
-    rasm_aniqlash= State()
 
 
 class kiril_latin(StatesGroup):

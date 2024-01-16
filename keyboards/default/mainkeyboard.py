@@ -9,7 +9,7 @@ async def get_choose_lan_2(telegram_id):
     return choose_lan_2
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-async def create_menu_markup(telegram_id, button1_text='🎙 Ovoz orqali', button2_text='🏞 Rasm orqali'):
+async def create_menu_markup(telegram_id):
     choose_lan_1 = await get_choose_lan_1(telegram_id)
     choose_lan_1 = get_language_from_callback(choose_lan_1)
 
@@ -24,9 +24,9 @@ async def create_menu_markup(telegram_id, button1_text='🎙 Ovoz orqali', butto
                 KeyboardButton(text=choose_lan_2),
             ],
             [
-                KeyboardButton(text=button1_text),  # You can now pass custom text for this button
+                # KeyboardButton(text=button1_text),
                 KeyboardButton(text='Kiril_Lotin'),
-                KeyboardButton(text=button2_text),  # You can now pass custom text for this button
+                # KeyboardButton(text=button2_text),
             ]
         ],
         resize_keyboard=True
@@ -34,3 +34,13 @@ async def create_menu_markup(telegram_id, button1_text='🎙 Ovoz orqali', butto
 
     return menu
 
+
+
+atmenkeyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Bekor qilish"),
+        ],
+    ],
+    resize_keyboard=True
+)
